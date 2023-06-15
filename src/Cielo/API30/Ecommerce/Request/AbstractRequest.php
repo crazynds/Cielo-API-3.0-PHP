@@ -135,6 +135,10 @@ abstract class AbstractRequest
                 $exception = null;
                 $response  = json_decode($responseBody);
 
+		if(strpos($response, 'Merchant not found') !== false) {
+                    throw new CieloRequestException('Merchant not found', 404, null);
+                }
+		
                 foreach ($response as $error) {
                     $cieloError = new CieloError($error->Message, $error->Code);
                     $exception  = new CieloRequestException('Request Error', $statusCode, $exception);
