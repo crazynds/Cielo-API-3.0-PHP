@@ -9,7 +9,6 @@ namespace Cielo\API30\Ecommerce;
  */
 class Payment implements \JsonSerializable
 {
-
     const PAYMENTTYPE_CREDITCARD = 'CreditCard';
 
     const PAYMENTTYPE_DEBITCARD = 'DebitCard';
@@ -23,6 +22,8 @@ class Payment implements \JsonSerializable
     const PROVIDER_BANCO_DO_BRASIL = 'BancoDoBrasil';
 
     const PROVIDER_SIMULADO = 'Simulado';
+
+	private $fraudAnalysis;
 
     private $serviceTaxAmount;
 
@@ -138,7 +139,6 @@ class Payment implements \JsonSerializable
      */
     public function populate(\stdClass $data)
     {
-
         $this->serviceTaxAmount = isset($data->ServiceTaxAmount) ? $data->ServiceTaxAmount : null;
         $this->installments     = isset($data->Installments) ? $data->Installments : null;
         $this->interest         = isset($data->Interest) ? $data->Interest : null;
@@ -160,6 +160,11 @@ class Payment implements \JsonSerializable
             $this->debitCard = new CreditCard();
             $this->debitCard->populate($data->DebitCard);
         }
+
+		if(isset($data->FraudAnalysis)) {
+			$this->fraudAnalysis = new FraudAnalysis();
+			$this->fraudAnalysis->populate($data->FraudAnalysis);
+		}
 
         $this->expirationDate = isset($data->ExpirationDate) ? $data->ExpirationDate : null;
         $this->url            = isset($data->Url) ? $data->Url : null;
@@ -1104,4 +1109,24 @@ class Payment implements \JsonSerializable
 
         return $this;
     }
+
+	/**
+	 * @param $fraudAnalysis
+	 * 
+	 * @return FraudAnalysis
+	 */
+	public function fraudAnalysis()
+	{
+		$fraudAnalysis = new FraudAnalysis();
+		$fraudAnalysis->setTotalOrderAmount($this->getAmount());
+
+		$this->fraudAnalysis = $fraudAnalysis;
+
+		return $fraudAnalysis;
+	}
+
+	public function getFraudAnalysis()
+	{
+		return $this->fraudAnalysis;
+	}
 }
