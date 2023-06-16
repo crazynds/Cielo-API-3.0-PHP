@@ -140,6 +140,11 @@ abstract class AbstractRequest
 		if(strpos($response, 'Merchant not found') !== false) {
                     throw new CieloRequestException('Merchant not found', 404, null);
                 }
+
+		$responseType = gettype($response);
+                if($responseType == 'string'){
+                    $response = $this->parametrizarSeString($response);
+                }
 		
                 foreach ($response as $error) {
                     $cieloError = new CieloError($error->Message, $error->Code);
@@ -157,6 +162,20 @@ abstract class AbstractRequest
         return $unserialized;
     }
 
+    protected function parametrizarSeString(String $string){
+	preg_match('/(\w{1,}):/',$string,$code);
+        preg_match('/:(\s[\w\'\.\s]{1,})/',$string,$message);
+	    
+        $obj = [
+            (object) [
+                'Code'      => $code[1],
+                'Message'   => $message[1]
+            ]
+        ];
+	    
+        return $obj;
+    }
+	
     /**
      * @param $json
      *
