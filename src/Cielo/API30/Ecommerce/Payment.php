@@ -43,6 +43,8 @@ class Payment implements \JsonSerializable
 
     private $debitCard;
 
+    private $externalAuthentication;
+
     private $authenticationUrl;
 
     private $tid;
@@ -160,6 +162,11 @@ class Payment implements \JsonSerializable
             $this->debitCard = new CreditCard();
             $this->debitCard->populate($data->DebitCard);
         }
+        
+        if (isset($data->ExternalAuthentication)) {
+            $this->externalAuthentication = new ExternalAuthentication();
+            $this->externalAuthentication->populate($data->ExternalAuthentication);
+        }
 
 		if(isset($data->FraudAnalysis)) {
 			$this->fraudAnalysis = new FraudAnalysis();
@@ -254,6 +261,29 @@ class Payment implements \JsonSerializable
         $this->setDebitCard($card);
 
         return $card;
+    }
+    
+    /**
+     * @param type $cavv
+     * @param type $xid
+     * @param type $eci
+     * @param type $version
+     * @param type $referenceId
+     * 
+     * @return ExternalAuthentication
+     */
+    public function externalAuthentication($cavv, $xid, $eci, $version, $referenceId)
+    {
+        $auth = new ExternalAuthentication();
+        $auth->setCavv($cavv);
+        $auth->setXid($xid);
+        $auth->setEci($eci);
+        $auth->setVersion($version);
+        $auth->setReferenceId($referenceId);
+        
+        $this->setExternalAuthentication($auth);
+
+        return $auth;
     }
 
     /**
@@ -446,6 +476,26 @@ class Payment implements \JsonSerializable
     public function setDebitCard($debitCard)
     {
         $this->debitCard = $debitCard;
+
+        return $this;
+    }
+    
+    /**
+     * @return mixed
+     */
+    public function getExternalAuthentication()
+    {
+        return $this->externalAuthentication;
+    }
+
+    /**
+     * @param $externalAuthentication
+     *
+     * @return $this
+     */
+    public function setExternalAuthentication($externalAuthentication)
+    {
+        $this->externalAuthentication = $externalAuthentication;
 
         return $this;
     }
