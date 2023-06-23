@@ -115,6 +115,8 @@ class Payment implements \JsonSerializable
 
     private $qrCodeString;
 
+    private $acquirerTransactionId;
+
     /**
      * Payment constructor.
      *
@@ -211,8 +213,9 @@ class Payment implements \JsonSerializable
         $this->identification = isset($data->Identification) ? $data->Identification : null;
         $this->instructions   = isset($data->Instructions) ? $data->Instructions : null;
 	    
-	$this->qrCodeString        = isset($data->QrCodeString) ? $data->QrCodeString : null;
-	$this->qrCodeBase64Image   = isset($data->QrCodeBase64Image) ? $data->QrCodeBase64Image : null;
+	$this->qrCodeString          = isset($data->QrCodeString) ? $data->QrCodeString : null;
+	$this->qrCodeBase64Image     = isset($data->QrCodeBase64Image) ? $data->QrCodeBase64Image : null;
+	$this->acquirerTransactionId = isset($data->AcquirerTransactionId) ? $data->AcquirerTransactionId : null;
     }
 
     /**
@@ -1187,7 +1190,7 @@ class Payment implements \JsonSerializable
         return $this;
     }
 
-	    /**
+    /**
      * @return mixed
      */
     public function getQrCodeString()
@@ -1196,13 +1199,33 @@ class Payment implements \JsonSerializable
     }
 
     /**
-     * @param $instructions
+     * @param $qrCodeString
      *
      * @return $this
      */
-    public function seQrCodeString($qrCodeString)
+    public function setQrCodeString($qrCodeString)
     {
         $this->qrCodeString = $qrCodeString;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAcquirerTransactionId()
+    {
+        return $this->acquirerTransactionId;
+    }
+
+    /**
+     * @param $acquirerTransactionId
+     *
+     * @return $this
+     */
+    public function setAcquirerTransactionId($acquirerTransactionId)
+    {
+        $this->acquirerTransactionId = $acquirerTransactionId;
 
         return $this;
     }
