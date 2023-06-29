@@ -110,7 +110,7 @@ class Payment implements \JsonSerializable
 
     private $instructions;
 
-    private $qrcodeBase64Image;
+    private $qrCodeBase64Image;
 
     private $qrCodeString;
 
@@ -201,7 +201,7 @@ class Payment implements \JsonSerializable
         $this->identification = isset($data->Identification) ? $data->Identification : null;
         $this->instructions   = isset($data->Instructions) ? $data->Instructions : null;
 
-        $this->qrcodeBase64Image   = isset($data->QrcodeBase64Image) ? $data->QrcodeBase64Image : null;
+        $this->qrCodeBase64Image   = isset($data->QrCodeBase64Image) ? $data->QrCodeBase64Image : null;
         $this->qrCodeString   = isset($data->QrCodeString) ? $data->QrCodeString : null;
     }
 
@@ -1117,9 +1117,9 @@ class Payment implements \JsonSerializable
     /**
      * @return mixed
      */
-    public function getQrcodeBase64Image()
+    public function getQrCodeBase64Image()
     {
-        return $this->qrcodeBase64Image;
+        return $this->qrCodeBase64Image;
     }
 
      /**
