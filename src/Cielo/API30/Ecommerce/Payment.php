@@ -9,7 +9,6 @@ namespace Cielo\API30\Ecommerce;
  */
 class Payment implements \JsonSerializable
 {
-
     const PAYMENTTYPE_CREDITCARD = 'CreditCard';
 
     const PAYMENTTYPE_DEBITCARD = 'DebitCard';
@@ -23,6 +22,8 @@ class Payment implements \JsonSerializable
     const PROVIDER_BANCO_DO_BRASIL = 'BancoDoBrasil';
 
     const PROVIDER_SIMULADO = 'Simulado';
+
+	private $fraudAnalysis;
 
     private $serviceTaxAmount;
 
@@ -41,6 +42,8 @@ class Payment implements \JsonSerializable
     private $creditCard;
 
     private $debitCard;
+
+    private $externalAuthentication;
 
     private $authenticationUrl;
 
@@ -108,6 +111,12 @@ class Payment implements \JsonSerializable
 
     private $instructions;
 
+    private $qrCodeBase64Image;
+
+    private $qrCodeString;
+
+    private $acquirerTransactionId;
+
     /**
      * Payment constructor.
      *
@@ -138,7 +147,6 @@ class Payment implements \JsonSerializable
      */
     public function populate(\stdClass $data)
     {
-
         $this->serviceTaxAmount = isset($data->ServiceTaxAmount) ? $data->ServiceTaxAmount : null;
         $this->installments     = isset($data->Installments) ? $data->Installments : null;
         $this->interest         = isset($data->Interest) ? $data->Interest : null;
@@ -160,6 +168,16 @@ class Payment implements \JsonSerializable
             $this->debitCard = new CreditCard();
             $this->debitCard->populate($data->DebitCard);
         }
+        
+        if (isset($data->ExternalAuthentication)) {
+            $this->externalAuthentication = new ExternalAuthentication();
+            $this->externalAuthentication->populate($data->ExternalAuthentication);
+        }
+
+		if(isset($data->FraudAnalysis)) {
+			$this->fraudAnalysis = new FraudAnalysis();
+			$this->fraudAnalysis->populate($data->FraudAnalysis);
+		}
 
         $this->expirationDate = isset($data->ExpirationDate) ? $data->ExpirationDate : null;
         $this->url            = isset($data->Url) ? $data->Url : null;
@@ -194,6 +212,10 @@ class Payment implements \JsonSerializable
         $this->demonstrative  = isset($data->Demonstrative) ? $data->Demonstrative : null;
         $this->identification = isset($data->Identification) ? $data->Identification : null;
         $this->instructions   = isset($data->Instructions) ? $data->Instructions : null;
+	    
+	$this->qrCodeString          = isset($data->QrCodeString) ? $data->QrCodeString : null;
+	$this->qrCodeBase64Image     = isset($data->QrCodeBase64Image) ? $data->QrCodeBase64Image : null;
+	$this->acquirerTransactionId = isset($data->AcquirerTransactionId) ? $data->AcquirerTransactionId : null;
     }
 
     /**
@@ -249,6 +271,29 @@ class Payment implements \JsonSerializable
         $this->setDebitCard($card);
 
         return $card;
+    }
+    
+    /**
+     * @param type $cavv
+     * @param type $xid
+     * @param type $eci
+     * @param type $version
+     * @param type $referenceId
+     * 
+     * @return ExternalAuthentication
+     */
+    public function externalAuthentication($cavv, $xid, $eci, $version, $referenceId)
+    {
+        $auth = new ExternalAuthentication();
+        $auth->setCavv($cavv);
+        $auth->setXid($xid);
+        $auth->setEci($eci);
+        $auth->setVersion($version);
+        $auth->setReferenceId($referenceId);
+        
+        $this->setExternalAuthentication($auth);
+
+        return $auth;
     }
 
     /**
@@ -441,6 +486,26 @@ class Payment implements \JsonSerializable
     public function setDebitCard($debitCard)
     {
         $this->debitCard = $debitCard;
+
+        return $this;
+    }
+    
+    /**
+     * @return mixed
+     */
+    public function getExternalAuthentication()
+    {
+        return $this->externalAuthentication;
+    }
+
+    /**
+     * @param $externalAuthentication
+     *
+     * @return $this
+     */
+    public function setExternalAuthentication($externalAuthentication)
+    {
+        $this->externalAuthentication = $externalAuthentication;
 
         return $this;
     }
@@ -1104,4 +1169,84 @@ class Payment implements \JsonSerializable
 
         return $this;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getQrCodeBase64Image()
+    {
+        return $this->qrCodeBase64Image;
+    }
+
+    /**
+     * @param $instructions
+     *
+     * @return $this
+     */
+    public function setQrCodeBase64Image($qrCodeBase64Image)
+    {
+        $this->qrCodeBase64Image = $qrCodeBase64Image;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getQrCodeString()
+    {
+        return $this->qrCodeString;
+    }
+
+    /**
+     * @param $qrCodeString
+     *
+     * @return $this
+     */
+    public function setQrCodeString($qrCodeString)
+    {
+        $this->qrCodeString = $qrCodeString;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAcquirerTransactionId()
+    {
+        return $this->acquirerTransactionId;
+    }
+
+    /**
+     * @param $acquirerTransactionId
+     *
+     * @return $this
+     */
+    public function setAcquirerTransactionId($acquirerTransactionId)
+    {
+        $this->acquirerTransactionId = $acquirerTransactionId;
+
+        return $this;
+    }
+	
+    /**
+     *
+     * @return $fraudAnalysis
+     */
+    public function fraudAnalysis()
+    {
+     	$fraudAnalysis = new FraudAnalysis();
+	$fraudAnalysis->setTotalOrderAmount($this->getAmount());
+
+	$this->fraudAnalysis = $fraudAnalysis;
+
+	return $fraudAnalysis;
+    }
+
+    public function getFraudAnalysis()
+    {
+        return $this->fraudAnalysis;
+    }
+	
 }

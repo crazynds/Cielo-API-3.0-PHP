@@ -104,8 +104,10 @@ abstract class AbstractRequest
         if (curl_errno($curl)) {
             $message = sprintf('cURL error[%s]: %s', curl_errno($curl), curl_error($curl));
 
-            $this->logger->error($message);
-
+           if ($this->logger !== null) {
+                $this->logger->error($message);
+            }
+		
             throw new \RuntimeException($message);
         }
 
@@ -135,6 +137,15 @@ abstract class AbstractRequest
                 $exception = null;
                 $response  = json_decode($responseBody);
 
+		if(strpos($response, 'Merchant not found') !== false) {
+                    throw new CieloRequestException('Merchant not found', 404, null);
+                }
+
+		$responseType = gettype($response);
+                if($responseType == 'string'){
+                    $response = $this->parametrizarSeString($response);
+                }
+		
                 foreach ($response as $error) {
                     $cieloError = new CieloError($error->Message, $error->Code);
                     $exception  = new CieloRequestException('Request Error', $statusCode, $exception);
@@ -151,6 +162,20 @@ abstract class AbstractRequest
         return $unserialized;
     }
 
+    protected function parametrizarSeString(String $string){
+	preg_match('/(\w{1,}):/',$string,$code);
+        preg_match('/:(\s[\w\'\.\s]{1,})/',$string,$message);
+	    
+        $obj = [
+            (object) [
+                'Code'      => $code[1],
+                'Message'   => $message[1]
+            ]
+        ];
+	    
+        return $obj;
+    }
+	
     /**
      * @param $json
      *
